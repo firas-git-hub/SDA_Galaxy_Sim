@@ -7,3 +7,8 @@ class Node:
       self.data = data
    def PrintTree(self):
       print(self.data)
+
+
+def patate ():
+   print("patate")
+   
