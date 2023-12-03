@@ -26,6 +26,7 @@ def calcForceBetweenParticles3d(p1, p2):
     res = cstnt.G * ( p1.mass*p2.mass ) * ptclsVectDiff / distBetweenPtcls
     return res
 
+# This is for testing remove later
 class Particle2D:
     def __init__(self, x, y, mass):
         self.x = x
@@ -33,7 +34,6 @@ class Particle2D:
         self.vect = np.array([x, y])
         self.mass = mass
 
-# This is for testing remove later
 ptcl2D1 = Particle2D(2, 10, 150)
 ptcl2D2 = Particle2D(4, 6, 200)
 
