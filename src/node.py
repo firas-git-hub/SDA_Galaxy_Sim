@@ -8,3 +8,4 @@ class Node:
       print(self.data)
 
 print("coucou fuck")
+print("bonjour petit vent")
