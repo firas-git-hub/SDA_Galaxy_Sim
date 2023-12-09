@@ -7,3 +7,4 @@ class Node:
    def PrintTree(self):
       print(self.data)
 
+print("coucou fuck")
