@@ -2,6 +2,10 @@ import math
 import numpy as np
 import scipy.constants as cstnt
 import random
+import tkinter as tk
+
+G = 6.67430e-11
+theta = 0.5 
 
 class Node:
    def __init__(self, data):
@@ -13,33 +17,68 @@ class Node:
       print(self.data)
 
 class etoile:
-   def __init__(self,ex,ey,em):
-      self.x = ex
-      self.y = ey
+   def __init__(self,ex,ey,rx,ry,em):
+      self.p_x = ex
+      self.p_y = ey
+      self.r_x = rx
+      self.r_y = ry
       self.m = em
+
+
+
 
 etoile_tab = []
 def etoile_generator():
    
    for i in range(50):
-      x = round(random.uniform(1, 200), 2)
-      
-      y = round(random.uniform(1, 200), 2)
+      x = round(random.uniform(10, 120), 2)
+      y = round(random.uniform(10, 120), 2)
+      rx = round(random.uniform(10, 120), 2)
+      ry = round(random.uniform(10, 120), 2)
       m = round(random.uniform(2000000, 10000000), 4)
-      etoile_objet= etoile(x,y,m)
+      etoile_objet= etoile(x,y,rx,ry,m)
       etoile_tab.append(etoile_objet)
 
 
 def etoile_tab_print():
    for patate in etoile_tab:
-      print("X : ",patate.x," Y : ",patate.y," Masse : ",patate.m)
+      print("X : ",patate.p_x," Y : ",patate.p_y," vitesse X: ",patate.r_x," vitesse y: ",patate.r_y," Masse : ",patate.m)
+
 
 
 etoile_generator()
 etoile_tab_print()
 
 
+def draw_etoiles(canvas):
+    for etoile_objet in etoile_tab:
+        x = etoile_objet.p_x
+        y = etoile_objet.p_y
+        canvas.create_oval(x, y, x+2, y+2, fill='yellow')  # Dessiner un point jaune pour représenter l'étoile
 
+root = tk.Tk()
+root.title("Étoiles")
+
+canvas = tk.Canvas(root, width=150, height=150, bg='black')
+canvas.pack()
+
+draw_etoiles(canvas)
+
+root.mainloop()
+
+
+def delta_r (tab):
+   delta_t = 0.1
+   etoile_delta =[]
+   etoile1 = etoile_tab[0]
+   delta_r_x = etoile1.r_x * delta_t
+   delta_r_y = etoile1.r_y * delta_t
+   etoile_delta.append(delta_r_x)  
+   etoile_delta.append(delta_r_y)  
+   print(etoile_delta[0], " et ", etoile_delta[1])
+   return etoile_delta
+
+delta_r(etoile_tab)
 
 
 
