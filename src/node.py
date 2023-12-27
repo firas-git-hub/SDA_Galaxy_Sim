@@ -2,91 +2,103 @@ import math
 import numpy as np
 import scipy.constants as cstnt
 import random
+from tkinter import *
 import tkinter as tk
 
 G = 6.67430e-11
-theta = 0.5
-
+theta = 0.5 
 
 class Node:
-    def __init__(self, data):
-        self.left = None
-        self.middle = None
-        self.right = None
-        self.data = data
-
-    def PrintTree(self):
-        print(self.data)
-
+   def __init__(self, data):
+      self.left = None
+      self.middle = None
+      self.right = None
+      self.data = data
+   def PrintTree(self):
+      print(self.data)
 
 class etoile:
-    def __init__(self, ex, ey, rx, ry, em):
-        self.p_x = ex
-        self.p_y = ey
-        self.r_x = rx
-        self.r_y = ry
-        self.m = em
+   def __init__(self,ex,ey,rx,ry,em):
+      self.p_x = ex
+      self.p_y = ey
+      self.r_x = rx
+      self.r_y = ry
+      self.m = em
+
+class ResizingCanvas(tk.Canvas):
+    def __init__(self,parent,**kwargs):
+        Canvas.__init__(self,parent,**kwargs)
+        self.bind("<Configure>", self.on_resize)
+        self.height = self.winfo_reqheight()
+        self.width = self.winfo_reqwidth()
+
+    def on_resize(self,event):
+        # determine the ratio of old width/height to new width/height
+        wscale = float(event.width)/self.width
+        hscale = float(event.height)/self.height
+        self.width = event.width
+        self.height = event.height
+        # resize the canvas 
+        self.config(width=self.width, height=self.height)
+        # rescale all the objects tagged with the "all" tag
+        self.scale("all",0,0,wscale,hscale)
+
 
 
 etoile_tab = []
-
-
 def etoile_generator():
-
-    for i in range(50):
-        x = round(random.uniform(10, 120), 2)
-        y = round(random.uniform(10, 120), 2)
-        rx = round(random.uniform(10, 120), 2)
-        ry = round(random.uniform(10, 120), 2)
-        m = round(random.uniform(2000000, 10000000), 4)
-        etoile_objet = etoile(x, y, rx, ry, m)
-        etoile_tab.append(etoile_objet)
+   
+   for i in range(50):
+      x = round(random.uniform(10, 120), 2)
+      y = round(random.uniform(10, 120), 2)
+      rx = round(random.uniform(10, 120), 2)
+      ry = round(random.uniform(10, 120), 2)
+      m = round(random.uniform(2000000, 10000000), 4)
+      etoile_objet= etoile(x,y,rx,ry,m)
+      etoile_tab.append(etoile_objet)
 
 
 def etoile_tab_print():
-    for patate in etoile_tab:
-        print("X : ", patate.p_x, " Y : ", patate.p_y, " vitesse X: ",
-              patate.r_x, " vitesse y: ", patate.r_y, " Masse : ", patate.m)
+   for patate in etoile_tab:
+      print("X : ",patate.p_x," Y : ",patate.p_y," vitesse X: ",patate.r_x," vitesse y: ",patate.r_y," Masse : ",patate.m)
+
 
 
 etoile_generator()
 etoile_tab_print()
-
-# rendre dynamique
 
 
 def draw_etoiles(canvas):
     for etoile_objet in etoile_tab:
         x = etoile_objet.p_x
         y = etoile_objet.p_y
-        # Dessiner un point jaune pour représenter l'étoile
-        canvas.create_oval(x, y, x+2, y+2, fill='yellow')
-
+        canvas.create_oval(x, y, x+2, y+2, fill='yellow')  # Dessiner un point jaune pour représenter l'étoile
 
 root = tk.Tk()
 root.title("Étoiles")
-
-canvas = tk.Canvas(root, width=150, height=150, bg='black')
-canvas.pack()
+myframe = Frame(root)
+myframe.pack(fill=BOTH, expand=YES)
+canvas = ResizingCanvas(myframe, width=150, height=150, bg='black', highlightthickness=0)
+canvas.pack(fill=BOTH, expand=YES)
 
 draw_etoiles(canvas)
 
 root.mainloop()
 
 
-def delta_r(tab):
-    delta_t = 0.1
-    etoile_delta = []
-    etoile1 = etoile_tab[0]
-    delta_r_x = etoile1.r_x * delta_t
-    delta_r_y = etoile1.r_y * delta_t
-    etoile_delta.append(delta_r_x)
-    etoile_delta.append(delta_r_y)
-    print(etoile_delta[0], " et ", etoile_delta[1])
-    return etoile_delta
-
+def delta_r (tab):
+   delta_t = 0.1
+   etoile_delta =[]
+   etoile1 = etoile_tab[0]
+   delta_r_x = etoile1.r_x * delta_t
+   delta_r_y = etoile1.r_y * delta_t
+   etoile_delta.append(delta_r_x)  
+   etoile_delta.append(delta_r_y)  
+   print(etoile_delta[0], " et ", etoile_delta[1])
+   return etoile_delta
 
 delta_r(etoile_tab)
+
 
 
 def norm_vector(etoile1, etoile2):
@@ -124,6 +136,7 @@ def formule_acceleration(tab, i):
 
 a = formule_acceleration(etoile_tab, 1)
 print(a)
+
 
 """
 
