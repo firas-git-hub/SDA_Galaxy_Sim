@@ -31,7 +31,7 @@ class Particle2D:
     def __init__(self, x, y, mass):
         self.x = x
         self.y = y
-        self.vect = np.array([x, y])
+        self.vect = np.array([x, y,x,y])
         self.mass = mass
 
 ptcl2D1 = Particle2D(2, 10, 150)
