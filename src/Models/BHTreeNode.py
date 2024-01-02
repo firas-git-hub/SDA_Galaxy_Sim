@@ -14,7 +14,7 @@ class BHTreeNode:
     s_gamma = 30.0
     
     # le facteur distance entre quadrant et particule / diametre du quadrant
-    theta = None
+    theta = 0.9
     
     # les particules qui ne sont pas assignees a un noeud de l'arbre
     objetsNonAssignees = []
