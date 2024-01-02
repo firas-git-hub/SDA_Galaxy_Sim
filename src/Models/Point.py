@@ -1,6 +1,6 @@
 class Point:
 
-    def __init__(self, x: int = None, y: int = None):
+    def __init__(self, x: float = None, y: float = None):
         self.x = x
         self.y = y
         

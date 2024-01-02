@@ -139,20 +139,19 @@ class BHTreeNode:
                     self.masse += self.enfants[i].masse
                     self.centreDeMasse.x += self.enfants[i].centreDeMasse.x * self.enfants[i].masse
                     self.centreDeMasse.y += self.enfants[i].centreDeMasse.y * self.enfants[i].masse
-        self.centreDeMasse.x /= self.masse
-        self.centreDeMasse.y /= self.masse
+            self.centreDeMasse.x /= self.masse
+            self.centreDeMasse.y /= self.masse
 
     def calcAcc(particule1: Particule, particule2: Particule) -> Point|None :
         acc = Point(0, 0)
         if particule1 == particule2 :
-            return None
+            return acc
         
         x1, y1 = particule1.position.x, particule1.position.y
         x2, y2, m2 = particule2.position.x, particule2.position.y, particule2.masse
         
         r = np.sqrt((x1 - x2) * (x1 - x2) + 
                     (y1 - y2) * (y1 - y2) + BHTreeNode.s_soft)
-        
         if r > 0 :
             k = BHTreeNode.s_gamma * m2 / (r * r * r)
             acc.x += k * (x2 - x1)
@@ -249,10 +248,8 @@ class BHTreeNode:
         if self.nbParticules > 1:
             eQuad = self.obtenirQuadrant(p1.position.x, p1.position.y)
             eQuadIndex = BHTreeNode.traduireQuadrantAIndexEnfant(eQuad)
-            
             if not self.enfants[eQuadIndex]:
                 self.enfants[eQuadIndex] = self.creeNoeudQuad(eQuad)
-
             self.enfants[eQuadIndex].insert(nouveauParticule, level + 1)
         
         # si le nb de particules est 1, c'est sur que le neoud est une feuille,
@@ -264,7 +261,6 @@ class BHTreeNode:
 
             if (p1.position.x == p2.position.x) and (p1.position.y == p2.position.y):
                  BHTreeNode.objetsNonAssignees.append(nouveauParticule)
-                 
             else:
                 eQuad = self.obtenirQuadrant(p2.position.x, p2.position.y)
                 eQuadIndex = BHTreeNode.traduireQuadrantAIndexEnfant(eQuad)
@@ -305,14 +301,20 @@ class BHTreeNode:
 rootNode = BHTreeNode(None, Point(0,0), Point(20,20))
 p1 = Particule(Point(4,9), Point(1,1), Point(1,1), 250)
 p2 = Particule(Point(4,11), Point(1,1), Point(1,1), 250)
-p3 = Particule(Point(11,9), Point(1,1), Point(1,1), 250)
-p4 = Particule(Point(11,11), Point(1,1), Point(1,1), 250)
-p5 = Particule(Point(4,8), Point(1,1), Point(1,1), 250)
+p3 = Particule(Point(11,9), Point(5,1), Point(3,7), 250)
+p4 = Particule(Point(12,11), Point(4,2), Point(2,1), 250)
+p5 = Particule(Point(6,8), Point(1,1), Point(1,1), 250)
+p6 = Particule(Point(21,8), Point(1,1), Point(1,1), 250)
 rootNode.insert(p1,0)
 rootNode.insert(p2,0)
 rootNode.insert(p3,0)
 rootNode.insert(p4,0)
 rootNode.insert(p5,0)
-rootNode.insert(p5,0)
+# rootNode.insert(p5,0)
 
-print(rootNode.objetsNonAssignees)
+print(rootNode.enfants[0].centreDeMasse)
+print(rootNode.enfants[0].nbParticules)
+print(rootNode.enfants[0].calcDistributionMasse())
+print(rootNode.enfants[0].centreDeMasse)
+    
+# print(rootNode.isRacine())
