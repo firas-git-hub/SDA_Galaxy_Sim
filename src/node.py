@@ -49,6 +49,43 @@ class etoile:
 etoile_tab = []
 
 
+
+def norm_vector1(etoile1, etoile2):
+    x = etoile2.p[0] - etoile1.p[0]
+    y = etoile2.p[1] - etoile1.p[1]
+    norme = math.sqrt((x**2)+(y**2))
+    return norme
+
+def formule_acceleration1(tab, i):
+    etoile_first = tab[i]
+   # taille = len(etoile_tab)
+    total_x = 0
+    total_y = 0
+    for e in tab:
+        if e == etoile_first:
+            continue
+        else:
+            total_x = total_x + \
+                (((e.m * etoile_first.m) / (norm_vector1(etoile_first, e)) ** 3)
+                 * (e.p[0] - etoile_first.p[0]))
+
+            total_y = total_y + \
+                (((e.m * etoile_first.m) / (norm_vector1(etoile_first, e)) ** 3)
+                 * (e.p[1] - etoile_first.p[1]))
+
+    end_x = G * total_x
+    # print("end_x = ", end_x)
+    end_y = G * total_y
+    # print("end_y = ", end_y)
+    end_x1 = end_x / etoile_first.m
+    # print("end_x1 = ", end_x1)
+    end_y1 = end_y / etoile_first.m
+    # print("end_y1 = ", end_y1)
+
+    tableau = [end_x1, end_y1]
+    return tableau
+
+
 def etoile_generator():
     et_tab = []
     for i in range(2):
@@ -61,7 +98,7 @@ def etoile_generator():
         et_tab.append(et_objet)
     i = 0
     while i < len(et_tab):
-        acceleration_tab = formule_acceleration(et_tab, i)
+        acceleration_tab = formule_acceleration1(et_tab, i)
         ax = acceleration_tab[0]
         ay = acceleration_tab[1]
         etoile_objet = etoile(px, py, vx, vy, ax, ay, m)
@@ -75,10 +112,10 @@ def etoile_tab_print():
               patate.v[0], " Vitesse y: ", patate.v[1], " Acceleration X: ", patate.a[0], " Acceleration Y: ", patate.a[1], " Masse : ", patate.m)
 
 
-# etoile_generator()
+etoile_generator()
 # etoile_tab_print()
 # rendre dynamique
-"""
+
 def draw_etoiles(canvas):
     for etoile_objet in etoile_tab:
         x = etoile_objet.p_x
@@ -97,7 +134,7 @@ draw_etoiles(canvas)
 
 root.mainloop()
 
-"""
+
 
 # en plus, peut etre ca va nous aider
 
@@ -123,12 +160,12 @@ def norm_vector(etoile1, etoile2):
     norme = math.sqrt((x**2)+(y**2))
     return norme
 
-
+"""
 # test
 p1 = etoile(3.0, 9.0, 9.0, 2.0, 3.0632, -4.2885, 20.0)
 p2 = etoile(8.0, 2.0, 2.0, 7.0, -10.0632, 15.2885, 13.0)
 etoile_tab = [p1, p2]
-
+"""
 
 # calcule de l'acceleration d'une etoile
 def formule_acceleration(tab, i):
