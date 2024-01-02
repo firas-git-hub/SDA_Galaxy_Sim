@@ -11,7 +11,7 @@ class BHTreeNode:
     s_soft = 0.1 * 0.1 
     
     # Constante gravitationelle ui vas etre definit en dehors de cette classe
-    s_gamma = 0
+    s_gamma = 30.0
     
     # le facteur distance entre quadrant et particule / diametre du quadrant
     theta = None
@@ -299,22 +299,26 @@ class BHTreeNode:
 # print(testChild2.calcForceApproxPossible)
 
 rootNode = BHTreeNode(None, Point(0,0), Point(20,20))
-p1 = Particule(Point(4,9), Point(1,1), Point(1,1), 250)
-p2 = Particule(Point(4,11), Point(1,1), Point(1,1), 250)
-p3 = Particule(Point(11,9), Point(5,1), Point(3,7), 250)
-p4 = Particule(Point(12,11), Point(4,2), Point(2,1), 250)
-p5 = Particule(Point(6,8), Point(1,1), Point(1,1), 250)
-p6 = Particule(Point(21,8), Point(1,1), Point(1,1), 250)
+# p1 = etoile(3.0, 9.0, 9.0, 2.0, 3.0632, -4.2885, 20.0)
+# p2 = etoile(8.0, 2.0, 2.0, 7.0, -10.0632, 15.2885, 13.0)
+# etoile_tab = [p1, p2]
+p1 = Particule(Point(3.0, 9.0), Point(9.0, 2.0), Point(3.0632, -4.2885), 20.0)
+p2 = Particule(Point(8.0, 2.0), Point(2.0, 7.0), Point(-10.0632, 15.2885), 13.0)
+# p3 = Particule(Point(11,9), Point(5,1), Point(3,7), 250)
+# p4 = Particule(Point(12,11), Point(4,2), Point(2,1), 250)
+# p5 = Particule(Point(6,8), Point(1,1), Point(1,1), 250)
+# p6 = Particule(Point(21,8), Point(1,1), Point(1,1), 250)
 rootNode.insert(p1,0)
 rootNode.insert(p2,0)
-rootNode.insert(p3,0)
-rootNode.insert(p4,0)
-rootNode.insert(p5,0)
+# rootNode.insert(p3,0)
+# rootNode.insert(p4,0)
+# rootNode.insert(p5,0)
 # rootNode.insert(p5,0)
 
-print(rootNode.enfants[0].centreDeMasse)
-print(rootNode.enfants[0].nbParticules)
-print(rootNode.enfants[0].calcDistributionMasse())
-print(rootNode.enfants[0].centreDeMasse)
+print(rootNode.enfants[2].enfants[3].calcForce(rootNode.enfants[2].enfants[1].particule))
+# print(rootNode.enfants[0].centreDeMasse)
+# print(rootNode.enfants[0].nbParticules)
+# print(rootNode.enfants[0].calcDistributionMasse())
+# print(rootNode.enfants[0].centreDeMasse)
     
 # print(rootNode.isRacine())
