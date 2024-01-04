@@ -88,7 +88,7 @@ def formule_acceleration1(tab, i):
 
 def etoile_generator():
     et_tab = []
-    for i in range(2):
+    for i in range(5):
         px = round(random.uniform(10, 120), 2)
         py = round(random.uniform(10, 120), 2)
         vx = round(random.uniform(10, 120), 2)
@@ -113,13 +113,13 @@ def etoile_tab_print():
 
 
 etoile_generator()
-# etoile_tab_print()
+etoile_tab_print()
 # rendre dynamique
 
 def draw_etoiles(canvas):
     for etoile_objet in etoile_tab:
-        x = etoile_objet.p_x
-        y = etoile_objet.p_y
+        x = etoile_objet.p[0]
+        y = etoile_objet.p[1]
         # Dessiner un point jaune pour représenter l'étoile
         canvas.create_oval(x, y, x+2, y+2, fill='yellow')
 
