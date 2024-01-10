@@ -118,11 +118,11 @@ class BHTreeNode:
         # la masse du noeud = mase du particule et centre de mass 
         # du noeud = position de ce particule
         if self.nbParticules == 1 :
-            assert(self.particule.position)
-            assert(self.particule.vitesse)
-            assert(self.particule.acceleration)
+            assert(self.particule.etat.position)
+            assert(self.particule.etat.vitesse)
+            assert(self.particule.masse)
             self.masse = self.particule.masse
-            self.centreDeMasse = self.particule.position
+            self.centreDeMasse = self.particule.etat.position
             
         # S'il y a plusieurs particules dans le noeud alors on
         # calcule le centre de masse et la msse du noeud differement
@@ -147,8 +147,8 @@ class BHTreeNode:
         if particule1 == particule2 :
             return acc
         
-        x1, y1 = particule1.position.x, particule1.position.y
-        x2, y2, m2 = particule2.position.x, particule2.position.y, particule2.masse
+        x1, y1 = particule1.etat.position.x, particule1.etat.position.y
+        x2, y2, m2 = particule2.etat.position.x, particule2.etat.position.y, particule2.masse
         
         r = np.sqrt((x1 - x2) * (x1 - x2) + 
                     (y1 - y2) * (y1 - y2) + BHTreeNode.s_soft)
@@ -172,14 +172,14 @@ class BHTreeNode:
             BHTreeNode.nbCalculsPourEstimerForce += 1
         
         else:
-            r = np.sqrt((particule1.position.x - self.centreDeMasse.x) * (particule1.position.x - self.centreDeMasse.x) +
-                 (particule1.position.y - self.centreDeMasse.y) * (particule1.position.y - self.centreDeMasse.y))
+            r = np.sqrt((particule1.etat.position.x - self.centreDeMasse.x) * (particule1.etat.position.x - self.centreDeMasse.x) +
+                 (particule1.etat.position.y - self.centreDeMasse.y) * (particule1.etat.position.y - self.centreDeMasse.y))
             d = self.max.x - self.min.x
             if((d / r) <= BHTreeNode.theta):
                 self.calcForceApproxPossible = False
                 k = BHTreeNode.s_gamma * self.masse / (r * r * r)
-                acc.x = k * (self.centreDeMasse.x - particule1.position.x)
-                acc.y = k * (self.centreDeMasse.y - particule1.position.y)
+                acc.x = k * (self.centreDeMasse.x - particule1.etat.position.x)
+                acc.y = k * (self.centreDeMasse.y - particule1.etat.position.y)
                 BHTreeNode.nbCalculsPourEstimerForce += 1
             else:
                 self.calcForceApproxPossible = True
@@ -234,9 +234,9 @@ class BHTreeNode:
     def insert(self, nouveauParticule: Particule, level):
         p1: Particule = nouveauParticule
 
-        if((p1.position.x < self.min.x or p1.position.x > self.max.x) or (p1.position.y < self.min.y or p1.position.y > self.max.y)):
+        if((p1.etat.position.x < self.min.x or p1.etat.position.x > self.max.x) or (p1.etat.position.y < self.min.y or p1.etat.position.y > self.max.y)):
             error_message = (
-            f"Particle position ({p1.position.x}, {p1.position.y}) "
+            f"Particle position ({p1.etat.position.x}, {p1.etat.position.y}) "
             f"is outside tree node (min.x={self.min.x}, max.x={self.max.x}, "
             f"min.y={self.min.y}, max.y={self.max.y})"
             )
@@ -246,7 +246,7 @@ class BHTreeNode:
         # que ce noeud ait des enfants afin que le nb de partocules est egal a 1.
         # s'il a plusieurs enfants, on vas le decoupe.
         if self.nbParticules > 1:
-            eQuad = self.obtenirQuadrant(p1.position.x, p1.position.y)
+            eQuad = self.obtenirQuadrant(p1.etat.position.x, p1.etat.position.y)
             eQuadIndex = BHTreeNode.traduireQuadrantAIndexEnfant(eQuad)
             if not self.enfants[eQuadIndex]:
                 self.enfants[eQuadIndex] = self.creeNoeudQuad(eQuad)
@@ -259,17 +259,17 @@ class BHTreeNode:
             assert(self.isFeuille() or self.isRacine())
             p2 = self.particule
 
-            if (p1.position.x == p2.position.x) and (p1.position.y == p2.position.y):
-                 BHTreeNode.objetsNonAssignees.append(nouveauParticule)
+            if (p1.etat.position.x == p2.etat.position.x) and (p1.etat.position.y == p2.etat.position.y):
+                BHTreeNode.objetsNonAssignees.append(nouveauParticule)
             else:
-                eQuad = self.obtenirQuadrant(p2.position.x, p2.position.y)
+                eQuad = self.obtenirQuadrant(p2.etat.position.x, p2.etat.position.y)
                 eQuadIndex = BHTreeNode.traduireQuadrantAIndexEnfant(eQuad)
                 if not self.enfants[eQuadIndex]:
                     self.enfants[eQuadIndex] = self.creeNoeudQuad(eQuad)
                 self.enfants[eQuadIndex].insert(self.particule, level + 1)
                 self.particule = None
 
-                eQuad = self.obtenirQuadrant(p1.position.x, p1.position.y)
+                eQuad = self.obtenirQuadrant(p1.etat.position.x, p1.etat.position.y)
                 eQuadIndex = BHTreeNode.traduireQuadrantAIndexEnfant(eQuad)
                 if not self.enfants[eQuadIndex]:
                     self.enfants[eQuadIndex] = self.creeNoeudQuad(eQuad)
