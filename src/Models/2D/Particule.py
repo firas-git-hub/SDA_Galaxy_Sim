@@ -3,8 +3,8 @@ from Point import Point
 class Particule:
 
     def __init__(self, position: Point, vitesse: Point, acceleration: Point, masse):
-        self.etat = etatParticule(position, vitesse)
-        self.etatDeriv = etatDerivParticule(vitesse, acceleration)
+        self.etat = Etat(position, vitesse)
+        self.etatDeriv = EtatDeriv(vitesse, acceleration)
         self.masse = masse
         
     def __str__(self):
@@ -27,12 +27,12 @@ class Particule:
                    + ", "
                    + str(self.etatDeriv.acceleration.y))
         
-class etatParticule:
+class Etat:
     def __init__(self, position: Point, vitesse: Point):
         self.position = position
         self.vitesse = vitesse
     
-class etatDerivParticule:
+class EtatDeriv:
     def __init__(self, vitesse: Point, acceleration: Point):
         self.vitesse = vitesse
         self.acceleration = acceleration
