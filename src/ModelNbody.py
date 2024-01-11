@@ -115,8 +115,6 @@ class ModelNbody:
             print("\n\n")
 
         self.centre = self.root.GetCenterOfMass()
-
-
 """
 
 void ModelNBody::BuiltTree(const ParticleData &all)
