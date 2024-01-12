@@ -79,17 +79,17 @@ def main():
     nombre_de_particule = 5
     particule_list = []
 
-    
+
     parti_list = [generate_Parti() for _ in range(nombre_de_particule)]
-
-    # Afficher les Parti
-    for index, parti in enumerate(parti_list, start=1):
-        print(f"Parti {index}:\n{parti}\n")
-
     particule_list = generate_Particule(parti_list, particule_list, G)
+
+
+    # Afficher les Parti et Particule
+    """for index, parti in enumerate(parti_list, start=1):
+        print(f"Parti {index}:\n{parti}\n")
   
     for index, particule in enumerate(particule_list, start=1):
-        print(f"Parti {index}:\n{particule}\n")
+        print(f"Parti {index}:\n{particule}\n")"""
 
 
 if __name__ == "__main__":
