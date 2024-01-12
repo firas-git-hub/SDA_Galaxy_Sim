@@ -6,7 +6,7 @@ from Particule import Particule, Etat, EtatDeriv
 class initBHTree:
     def __init__(self) -> None:
         self.etatInitial: List[Etat] = []
-        self.mass: List[int] = []
+        self.masses: List[float] = []
         self.root: BHTreeNode = BHTreeNode(None, Point(), Point())
         self.min: Point = Point()
         self.max: Point = Point()
@@ -15,11 +15,25 @@ class initBHTree:
         self.timeStep = 1
         self.nbParticules = 0
         
-        self.initArbre()
+        self.init()
         
-
-    def resetDim():
+    def obtenirCentreDeMasse(self)-> Point:
+        return self.root.centreDeMasse 
+    
+    def resetDim(self, num: int, stepsize: float):
+        self.num = num
+        self.etatInitial = []
+        self.masses = []
+        self.timeStep = stepsize
+        self.max.x = float("-inf")
+        self.max.y = float("-inf")
+        self.min.x = float("inf")
+        self.min.y = float("inf")
+        self.centre = Point(0, 0)
+        
+    def init3Paricules():
         pass
+        
 
     def initArbre():
         pass
