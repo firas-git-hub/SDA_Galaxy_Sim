@@ -20,12 +20,14 @@ def generate_Parti():
 def generate_Particule(tab_par, tab_particule, G):
     i = 0
     while i < len(tab_par):
-        acceleration_tab = formule_acceleration(tab_par, i, G)
-        ax = acceleration_tab[0]
-        ay = acceleration_tab[1]
+        acceleration_point = formule_acceleration(tab_par, i, G)
+        """
+        ax = acceleration_point.x
+        ay = acceleration_point.y
         p_a = Point(ax, ay)
+        """
         p = Particule(tab_par[i].position,
-                      tab_par[i].vitesse, p_a, tab_par[i].masse)
+                      tab_par[i].vitesse, acceleration_point, tab_par[i].masse)
         tab_particule.append(p)
         i += 1
     return tab_particule
@@ -68,10 +70,52 @@ def formule_acceleration(tab, i, G):
     # print("end_x1 = ", end_x1)
     end_y1 = end_y / etoile_first.masse
     # print("end_y1 = ", end_y1)
-
+    """
     tableau = [end_x1, end_y1]
     return tableau
+    """ 
+    p_acc = Point(end_x1, end_y1)
+    return p_acc
+    
 
+
+
+
+# On met à jour les vitesses d'une étoile
+def vitesse_update(tab_etoile, position_etoile_tab, acceleration, delta_temps):
+    e = tab_etoile[position_etoile_tab]
+    acceleration_x = acceleration.x
+    acceleration_y = acceleration.y
+    #acceleration_x = tab_acceleration[0]
+    #acceleration_y = tab_acceleration[1]
+    #vitesse_new = []
+    vitesse_x = e.vitesse.x + acceleration_x * delta_temps
+    vitesse_y = e.vitesse.y + acceleration_y * delta_temps
+    vitesse_new = Point(vitesse_x,vitesse_y)
+    return vitesse_new
+
+
+
+# On met à jour les positions d'une étoile
+def position_update(tab_etoile, position_etoile_tab, vitesse, delta_temps):
+    e = tab_etoile[position_etoile_tab]
+    vitesse_x = vitesse.x
+    vitesse_y = vitesse.y
+    #position = []
+    position_x = e.position.x + vitesse_x * delta_temps
+    position_y = e.position.y + vitesse_y * delta_temps
+    position_new = Point(position_x, position_y)
+    return position_new
+
+def update_etoile(tab_etoile, position_etoile_tab, position_point, acceleration_point, vitesse_point):
+    e = tab_etoile[position_etoile_tab]
+    e.position.x = position_point.x
+    e.position.y = position_point.y
+    e.vitesse.x = vitesse_point.x
+    e.vitesse.y = vitesse_point.y
+    e.acceleration.x = acceleration_point.x
+    e.acceleration.y = acceleration_point.y
+    tab_etoile[position_etoile_tab] = e
 
 
 def main():
