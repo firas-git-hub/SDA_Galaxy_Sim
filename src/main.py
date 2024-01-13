@@ -151,7 +151,7 @@ def main():
     for i in range(len(particule_list)):
         rootNode.insert(particule_list[i], 0)
 
-    print(printEnfants(rootNode))
+    # print(printEnfants(rootNode))
     
     min_values, max_values = rootNode.get_min_max_values_of_children()
 
