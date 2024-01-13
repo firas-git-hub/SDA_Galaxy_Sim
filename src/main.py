@@ -191,7 +191,7 @@ def main():
     canvas = tk.Canvas(fenetre, width=max_x - min_x + 2*marge, height=max_y - min_y + 2*marge)
     canvas.pack()
 
-    #draw_etoiles(canvas)
+    draw_etoiles(canvas)
     
 
     # Tracer les rectangles à partir des coordonnées ajustées
@@ -230,6 +230,7 @@ def main():
 
 
         draw_etoiles(canvas)
+
         coordonnees_rectangles = [
             [(min_values[i].x, min_values[i].y), (max_values[i].x, max_values[i].y)]
             for i in range(len(min_values))
