@@ -120,6 +120,7 @@ def update_etoile(tab_etoile, position_etoile_tab, position_point, acceleration_
 
 def main():
     G = 30
+    delta_temps = 20
     nombre_de_particule = 5
     particule_list = []
 
@@ -130,11 +131,21 @@ def main():
 
     # Afficher les Parti et Particule
     """for index, parti in enumerate(parti_list, start=1):
-        print(f"Parti {index}:\n{parti}\n")
+        print(f"Parti {index}:\n{parti}\n")"""
   
     for index, particule in enumerate(particule_list, start=1):
-        print(f"Parti {index}:\n{particule}\n")"""
+        print(f"Parti {index}:\n{particule}\n")
 
+    i = 0
+    while i < len(particule_list):
+        acc = formule_acceleration(particule_list,i,G)
+        pos = position_update(particule_list, i, particule_list[i].vitesse, delta_temps)
+        vit = vitesse_update(particule_list, i, acc, delta_temps)
+        update_etoile(particule_list, i, pos, acc, vit)
+        i += 1
+        
+    for index, particule in enumerate(particule_list, start=1):
+        print(f"Parti {index}:\n{particule}\n")
 
 if __name__ == "__main__":
     main()
