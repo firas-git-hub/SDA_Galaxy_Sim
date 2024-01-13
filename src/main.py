@@ -137,13 +137,13 @@ def main():
     nombre_de_particule = 40
     particule_list = []
 
-    # parti_list = [generate_Parti() for _ in range(nombre_de_particule)]
-    # particule_list = generate_Particule(parti_list, particule_list, G)
+    parti_list = [generate_Parti() for _ in range(nombre_de_particule)]
+    particule_list = generate_Particule(parti_list, particule_list, G)
     # with open('data.pkl', 'wb') as f:
     #     pickle.dump(particule_list, f, pickle.HIGHEST_PROTOCOL)
-    particule_list
-    with open('data.pkl', 'rb') as f:
-        particule_list = pickle.load(f)
+    # particule_list
+    # with open('data.pkl', 'rb') as f:
+    #     particule_list = pickle.load(f)
 
 
     rootNode = BHTreeNode(None, Point(0, 0), Point(750, 750))
