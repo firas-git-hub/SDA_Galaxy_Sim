@@ -1,165 +1,289 @@
-import math
-import random
-from Constants import Constants  # Importez votre fichier Constants.py
-from IModel import IModel  # Importez votre fichier IModel.py
-from Point import Point  # Importez votre fichier Vector.py
-from BHTree import BHTreeNode  # Importez votre fichier BHTree.py
-# Importez votre fichier Types.py
-from Types import ParticleData, PODState, PODAuxState
+from BHTreeNode import BHTreeNode
+from Particle import Particle
+
+class Point2D:
+    def __init__(self, x:float, y:float):
+        self.x = x
+        self.y = y
 
 
-class ModelNBody(IModel):
+class Point3D:
+    def __init__(self, x:float, y:float, z:float):
+        self.x = x
+        self.y = y
+        self.z = z
+
+class PODState:
+    def __init__(self, x:float, y:float, vx:float, vy:float):
+        self.x = x
+        self.y = y
+        self.vx = vx
+        self.vy = vy
+
+class PODAuxState:
+    def __init__(self, masse:float):
+        self.masse = masse
+
+class PODDeriv:
+    def __init__(self, vx, vy, ax, ay):
+        self.vx = vx
+        self.vy = vy
+        self.ax = ax
+        self.ay = ay
+
+class Constants:
     def __init__(self):
-        super().__init__("N-Body simulation (2D)")
-        self._pInitial = None
-        self._pAux = None
-        self._root = BHTreeNode(Point(), Point())
-        self._min = Point()
-        self._max = Point()
-        self._center = Point()
-        self._camDir = Point()
-        self._camPos = Point()
-        self._roi = 1
-        self._timeStep = 1
-        self._num = 0
-        self._bVerbose = False
-
-        BHTreeNode.s_gamma = Constants.Gamma / \
-            (Constants.ParsecInMeter ** 3) * Constants.MassOfSun * \
-            (365.25 * 86400) * (365.25 * 86400)
-
-        # self.Init()
-        self.InitCollision()
-        # self.Init3Body()
-
-    def __del__(self):
-        del self._pInitial
-        del self._pAux
-
-    def SetROI(self, roi):
-        self._roi = roi
-
-    def GetSuggestedTimeStep(self):
-        return self._timeStep
-
-    def GetROI(self):
-        return self._roi
-
-    def GetCenterOfMass(self):
-        cm2d = self._root.GetCenterOfMass()
-        return Vec3D(cm2d.x, cm2d.y, 0)
-
-    def GetCamDir(self):
-        return self._camDir
-
-    def GetCamPos(self):
-        return self._camPos
-
-    def GetInitialState(self):
-        return self._pInitial
-
-    def GetOrbitalVelocity(self, p1, p2):
-        x1, y1, m1 = p1._pState.x, p1._pState.y, p1._pAuxState.mass
-        x2, y2 = p2._pState.x, p2._pState.y
-
-        r = [x1 - x2, y1 - y2]
-        dist = math.sqrt(r[0] ** 2 + r[1] ** 2)
-
-        v = math.sqrt(self.gamma_1 * m1 / dist)
-
-        p2._pState.vx = (r[1] / dist) * v
-        p2._pState.vy = (-r[0] / dist) * v
-
-    def ResetDim(self, num, stepsize):
-        self._num = num
-        self.SetDim(self._num * 4)
-
-        del self._pInitial
-        self._pInitial = [PODState() for _ in range(num)]
-
-        del self._pAux
-        self._pAux = [PODAuxState() for _ in range(num)]
-
-        self._timeStep = stepsize
-
-        self._max.x = self._max.y = float('-inf')
-        self._min.x = self._min.y = float('inf')
-        self._center = Vec2D(0, 0)
+        self.MassOfSun = 1.988435e30
+        self.ParsecInMeter = 3.08567758129e16
+        self.Gamma = 6.67428e-11
 
 
-def Init(self):
-    # Reset model size
-    self.ResetDim(5000, 100000)
+class ModelNbody:
+    def __init__(self):
+        constants = Constants()
+        self.pInitial = PODState()
+        self.pAux = PODAuxState()
+        self.root = BHTreeNode(Point2D(), Point2D())
+        self.min = Point2D()
+        self.max = Point2D()
+        self.centre = Point2D()
+        self.camDir = Point3D()
+        self.camPos = Point3D()
+        self.roi = 1.0
+        self.timeStep = 1.0
+        self.gamma_1 = constants.Gamma / (constants.ParsecInMeter ** 3) * constants.MassOfSun * (365.25 * 86400) ** 2
+        self.num = 0
+        self.bVerbose = False
+    
 
-    mass = 0  # for storing the total mass
 
-    # initialize particles
-    ct = 0
-    blackHole, macho = ParticleData(), [ParticleData() for _ in range(10)]
+    def eval(self, a_state, a_time, a_deriv):
+        pState = PODState()
+        pDeriv = PODDeriv()
 
-    for k in range(40):
-        for l in range(100):
-            if ct >= self._num:
-                break
+        all = Particle(pState, self.pAux)
 
-            st = self._pInitial[ct]
-            st_aux = self._pAux[ct]
+        self.CalcBHArea(all)
+        self.BuiltTree(all)
 
-            if ct == 0:
-                blackHole._pState = st
-                blackHole._pAuxState = st_aux
+        for i in range(1, self.num):
+            p = Particle(pState[i], self.pAux[i])
+            acc = self.root.CalcForce(p)
+            pDeriv[i].ax = acc.x
+            pDeriv[i].ay = acc.y
+            pDeriv[i].vx = pState[i].vx
+            pDeriv[i].vy = pState[i].vy
 
-                # particle zero is special; it's the trace particle that is not part
-                # of the simulation and can be positioned with the mouse
-                st.x = st.y = 0
-                st.vx = st.vy = 0
-                st_aux.mass = 1000000  # 431000;   # 4.31 Millionen Sonnenmassen
-            elif ct == 1 or ct == 2:
-                idx = ct - 1
-                macho[idx]._pState = st
-                macho[idx]._pAuxState = st_aux
 
-                # particle zero is special; it's the trace particle that is not part
-                # of the simulation and can be positioned with the mouse
-                st_aux.mass = blackHole._pAuxState.mass / 10.0
-                st.x = 5000 if idx == 0 else -5000
-                st.y = 5000 if idx == 0 else -5000
+        self.root.StatReset()
+        
+        p = Particle(pState[0], self.pAux[0]) #Pas sur
+        acc = self.root.CalcForce(p)
+        pDeriv[0].ax = acc.x
+        pDeriv[0].ay = acc.y
+        pDeriv[0].vx = pState[0].vx
+        pDeriv[0].vy = pState[0].vy
 
-                self.GetOrbitalVelocity(blackHole, ParticleData(st, st_aux))
-            else:
-                st_aux.mass = 0.76 + 100 * random.random()
-                rad = 1200 + k * 100
-                st.x = rad * math.sin(2 * math.pi * l / 100.0)
-                st.y = rad * math.cos(2 * math.pi * l / 100.0)
-                self.GetOrbitalVelocity(blackHole, ParticleData(st, st_aux))
 
-            # determine the size of the area including all particles
-            self._max.x = max(self._max.x, st.x)
-            self._max.y = max(self._max.y, st.y)
-            self._min.x = min(self._min.x, st.x)
-            self._min.y = min(self._min.y, st.y)
+        self.camPos.x = self.root.GetCenterOfMass().x
+        self.camPos.y = self.root.GetCenterOfMass().y
 
-            self._center.x += st.x * st_aux.mass
-            self._center.y += st.y * st_aux.mass
-            mass += st_aux.mass
-            ct += 1
 
-    self._center.x /= mass
-    self._center.y /= mass
+    def BuildTree(self, all:Particle):
+        self.root.Reset(Point2D(self.centre.x - self.roi, self.centre.y - self.roi), Point2D(self.centre.x + self.roi, self.centre.y + self.roi))
+        
+        ct = 0
+        for i in range(self.num):
+            try:
+                p = Particle(all._pState[i], all._pAuxState[i])
 
-    self._roi = 1.5 * max(self._max.x - self._min.x, self._max.y - self._min.y)
+                self.root.Insert(p, 0)
+                ct += 1
+            except Exception as exc:
+                '''
+                print(exc)
+                print(f"Particle {i} ({st.x}, {st.y}) is outside the roi (skipped).")
+                print(f"  roi size   =   {m_roi}")
+                print(f"  roi center = ({m_center.x}, {m_center.y})")
+                '''
+        self.root.ComputeMassDistribution()
 
-    # compute the center of the region including all particles
-    self._min.x = self._center.x - self._roi
-    self._max.x = self._center.x + self._roi
-    self._min.y = self._center.y - self._roi
-    self._max.y = self._center.y + self._roi
+        if self.bVerbose:
+            print("Tree Dump")
+            print("---------")
+            self.root.DumpNode(-1, 0)
+            print("\n\n")
 
-    print("Initial particle distribution area")
-    print("----------------------------------")
-    print("Particle spread:")
-    print(f"  xmin   = {self._min.x}, ymin={self._min.y}")
-    print(f"  xmax   = {self._max.x}, ymax={self._max.y}")
-    print("Bounding box:")
-    print(f"  center = {self._center.x}, cy  ={self._center.y}")
-    print(f"  roi    = {self._roi}")
+        self.centre = self.root.GetCenterOfMass()
+"""
+
+void ModelNBody::BuiltTree(const ParticleData &all)
+{
+    // Reset the quadtree, make sure only particles inside the roi
+    // are handled. The renegade ones may live long and prosper
+    // outside my simulation
+    _root.Reset(Vec2D(_center.x - _roi, _center.y - _roi),
+                Vec2D(_center.x + _roi, _center.y + _roi));
+
+    // build the quadtree
+    int ct = 0;
+    for (int i = 0; i < _num; ++i)
+    {
+        try
+        {
+            // extract data for a single particle
+            ParticleData p(&(all._pState[i]),
+                           &(all._pAuxState[i]));
+
+            // insert the particle, but only if its inside the roi
+            _root.Insert(p, 0);
+            ++ct;
+        }
+        catch (std::exception &exc)
+        {
+            /*
+                  std::cout << exc.what() << "\n";
+                  std::cout << "Particle " << i << " (" << st->x << ", " << st->y << ") is outside the roi (skipped).\n";
+                  std::cout << "  roi size   =   " << m_roi << "\n";
+                  std::cout << "  roi center = (" << m_center.x << ", " << m_center.y << ")\n";
+            */
+        }
+    }
+
+    //  std::cout << ct << " particles added sucessfully\n";
+
+    // compute masses and center of mass on all scales of the tree
+    _root.ComputeMassDistribution();
+    if (_bVerbose)
+    {
+        std::cout << "Tree Dump\n";
+        std::cout << "---------\n";
+        _root.DumpNode(-1, 0);
+        std::cout << "\n\n";
+    }
+
+    // update the center of mass
+    _center = _root.GetCenterOfMass();
+}
+
+
+"""
+
+
+
+
+
+
+"""
+void ModelNBody::Eval(double *a_state, double a_time, double *a_deriv)
+{
+    // wrap the complete particle data together for easier treatment
+    // in the following algorithms
+    PODState *pState = reinterpret_cast<PODState *>(a_state);
+    PODDeriv *pDeriv = reinterpret_cast<PODDeriv *>(a_deriv);
+    ParticleData all(pState, _pAux);
+
+    CalcBHArea(all);
+    BuiltTree(all);
+
+#pragma omp parallel for
+    for (int i = 1; i < _num; ++i)
+    {
+        ParticleData p(&pState[i], &_pAux[i]);
+        Vec2D acc = _root.CalcForce(p);
+        pDeriv[i].ax = acc.x;
+        pDeriv[i].ay = acc.y;
+        pDeriv[i].vx = pState[i].vx;
+        pDeriv[i].vy = pState[i].vy;
+    }
+
+    // Particle 0 is calculated last, because the statistics
+    // data relate to this particle. They would be overwritten
+    // otherwise
+    _root.StatReset();
+    ParticleData p(&pState[0], &_pAux[0]);
+    Vec2D acc = _root.CalcForce(p);
+    pDeriv[0].ax = acc.x;
+    pDeriv[0].ay = acc.y;
+    pDeriv[0].vx = pState[0].vx;
+    pDeriv[0].vy = pState[0].vy;
+
+    // Save vectors for camera orientations
+    //  m_camDir.x = pState[0].x - pState[4000].x;
+    //  m_camDir.y = pState[0].y - pState[4000].y;
+    _camPos.x = _root.GetCenterOfMass().x;
+    _camPos.y = _root.GetCenterOfMass().y;
+}
+
+
+
+
+
+
+
+
+
+---------------------
+    PODState *_pInitial;        ///< The initial state
+    PODAuxState *_pAux;         ///< Auxilliary state information
+
+    BHTreeNode _root;           ///< The root node of the barnes hut tree
+    Vec2D _min;                 ///< Upper left corner of the bounding box containing all particles
+    Vec2D _max;                 ///< Lower right corner of the bounding box containing all particles
+    Vec2D _center;              ///< The center of the simulation, the barnes hut tree is centered at this point
+    Vec3D _camDir;              ///< Direction of the camera
+    Vec3D _camPos;              ///< Position of the camera
+    double _roi;
+    double _timeStep;
+
+    static constexpr double gamma_1 = Constants::Gamma / (Constants::ParsecInMeter * Constants::ParsecInMeter * Constants::ParsecInMeter) * Constants::MassOfSun * (365.25 * 86400) * (365.25 * 86400);
+  
+    int _num;
+    bool _bVerbose;
+----------------------------
+"""
+
+
+
+"""
+import concurrent.futures
+
+class ModelNBody:
+    # ... autres parties de la classe ...
+
+    def Eval(self, a_state, a_time, a_deriv):
+        p_state = a_state
+        p_deriv = a_deriv
+        all_data = ParticleData(p_state, self._pAux)
+
+        self.CalcBHArea(all_data)
+        self.BuiltTree(all_data)
+
+        def calculate_force(i):
+            p = ParticleData(p_state[i], self._pAux[i])
+            acc = self._root.CalcForce(p)
+            p_deriv[i].ax = acc.x
+            p_deriv[i].ay = acc.y
+            p_deriv[i].vx = p_state[i].vx
+            p_deriv[i].vy = p_state[i].vy
+
+        # Utilisation de ThreadPoolExecutor pour paralléliser la boucle for
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            executor.map(calculate_force, range(1, self._num))
+
+        # Calculer pour la particule 0 après la parallélisation
+        self._root.StatReset()
+        p = ParticleData(p_state[0], self._pAux[0])
+        acc = self._root.CalcForce(p)
+        p_deriv[0].ax = acc.x
+        p_deriv[0].ay = acc.y
+        p_deriv[0].vx = p_state[0].vx
+        p_deriv[0].vy = p_state[0].vy
+
+        # Enregistrez les vecteurs pour les orientations de la caméra
+        # m_camDir.x = p_state[0].x - p_state[4000].x
+        # m_camDir.y = p_state[0].y - p_state[4000].y
+        self._camPos.x = self._root.GetCenterOfMass().x
+        self._camPos.y = self._root.GetCenterOfMass().y
+
+"""

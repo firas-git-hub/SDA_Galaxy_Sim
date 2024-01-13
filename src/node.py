@@ -2,6 +2,7 @@ import math
 import numpy as np
 import scipy.constants as cstnt
 import random
+from tkinter import *
 import tkinter as tk
 
 # choisir le bon G
@@ -10,15 +11,13 @@ theta = 0.5
 
 
 class Node:
-    def __init__(self, data):
-        self.left = None
-        self.middle = None
-        self.right = None
-        self.data = data
-
-    def PrintTree(self):
-        print(self.data)
-
+   def __init__(self, data):
+      self.left = None
+      self.middle = None
+      self.right = None
+      self.data = data
+   def PrintTree(self):
+      print(self.data)
 
 # la classe etoile, sans acceleration car pour calculer acceleration initiale nous avons besoin d'une classe avant de la classe etoile
 class et:
@@ -33,6 +32,31 @@ class et:
 
 
 class etoile:
+   def __init__(self,ex,ey,rx,ry,em):
+      self.p_x = ex
+      self.p_y = ey
+      self.r_x = rx
+      self.r_y = ry
+      self.m = em
+
+class ResizingCanvas(tk.Canvas):
+    def __init__(self,parent,**kwargs):
+        Canvas.__init__(self,parent,**kwargs)
+        self.bind("<Configure>", self.on_resize)
+        self.height = self.winfo_reqheight()
+        self.width = self.winfo_reqwidth()
+
+    def on_resize(self,event):
+        # determine the ratio of old width/height to new width/height
+        wscale = float(event.width)/self.width
+        hscale = float(event.height)/self.height
+        self.width = event.width
+        self.height = event.height
+        # resize the canvas 
+        self.config(width=self.width, height=self.height)
+        # rescale all the objects tagged with the "all" tag
+        self.scale("all",0,0,wscale,hscale)
+
     def __init__(self, px, py, vx, vy, ax, ay, em):
         self.p = []
         self.p.append(px)
@@ -126,9 +150,10 @@ def draw_etoiles(canvas):
 
 root = tk.Tk()
 root.title("Étoiles")
-
-canvas = tk.Canvas(root, width=150, height=150, bg='black')
-canvas.pack()
+myframe = Frame(root)
+myframe.pack(fill=BOTH, expand=YES)
+canvas = ResizingCanvas(myframe, width=150, height=150, bg='black', highlightthickness=0)
+canvas.pack(fill=BOTH, expand=YES)
 
 draw_etoiles(canvas)
 
@@ -136,6 +161,16 @@ root.mainloop()
 
 
 
+def delta_r (tab):
+   delta_t = 0.1
+   etoile_delta =[]
+   etoile1 = etoile_tab[0]
+   delta_r_x = etoile1.r_x * delta_t
+   delta_r_y = etoile1.r_y * delta_t
+   etoile_delta.append(delta_r_x)  
+   etoile_delta.append(delta_r_y)  
+   print(etoile_delta[0], " et ", etoile_delta[1])
+   return etoile_delta
 # en plus, peut etre ca va nous aider
 
 
@@ -152,6 +187,7 @@ def delta_p(tab):
 
 
 # delta_p(etoile_tab)
+
 
 
 def norm_vector(etoile1, etoile2):
@@ -234,6 +270,7 @@ def update_etoile(tab_etoile, position_etoile_tab, tab_position, tab_acceleratio
     e.a[0] = tab_acceleration[0]
     e.a[1] = tab_acceleration[1]
     tab_etoile[position_etoile_tab] = e
+
 
 
 """
