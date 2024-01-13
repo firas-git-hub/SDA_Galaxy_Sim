@@ -2,8 +2,10 @@ import numpy as np
 import math
 import random
 import scipy.constants as cstnt
+import tkinter as tk
 from Particule import Particule
 from Point import Point
+
 
 
 class BHTreeNode:
@@ -291,6 +293,23 @@ class BHTreeNode:
 
         self.nbParticules += 1
 
+    def get_min_max_values_of_children(self):
+        children_min_values = []
+        children_max_values = []
+
+        for child in self.enfants:
+            if child:  # Vérifier si le nœud a des enfants
+                children_min_values.append(child.min)
+                children_max_values.append(child.max)
+
+                # Si l'enfant a lui-même des enfants, récursivement obtenir les valeurs
+                if child.enfants:
+                    child_min, child_max = child.get_min_max_values_of_children()
+                    children_min_values.extend(child_min)
+                    children_max_values.extend(child_max)
+
+        return children_min_values, children_max_values
+
 # THIS IS FOR TESTING
 
 
@@ -328,8 +347,7 @@ rootNode.insert(p2, 0)
 # rootNode.insert(p5,0)
 # rootNode.insert(p5,0)
 
-print(rootNode.enfants[2].enfants[3].calcForce(
-    rootNode.enfants[2].enfants[1].particule))
+#print(rootNode.enfants[2].enfants[3].calcForce(rootNode.enfants[2].enfants[1].particule))
 # print(rootNode.enfants[0].centreDeMasse)
 # print(rootNode.enfants[0].nbParticules)
 # print(rootNode.enfants[0].calcDistributionMasse())
@@ -385,6 +403,27 @@ def formule_acceleration1(tab, i):
 def etoile_generator():
     et_tab = []
     for i in range(2):
+        px = round(random.uniform(10, 700), 2)
+        py = round(random.uniform(10, 700), 2)
+        vx = round(random.uniform(10, 700), 2)
+        vy = round(random.uniform(10, 700), 2)
+        m = round(random.uniform(40000, 120000), 4)
+        et_objet = et(px, py, vx, vy, m)
+        et_tab.append(et_objet)
+
+    i = 0
+    while i < len(et_tab):
+        acceleration_tab = formule_acceleration1(et_tab, i)
+        ax = acceleration_tab[0]
+        ay = acceleration_tab[1]
+        etoile_objet = etoile(et_tab[i].p[0], et_tab[i].p[1], et_tab[i].v[0], et_tab[i].v[1], ax, ay, et_tab[i].m)
+        etoile_tab.append(etoile_objet)
+        i += 1
+
+"""
+def etoile_generator():
+    et_tab = []
+    for i in range(2):
         px = round(random.uniform(10, 120), 2)
         py = round(random.uniform(10, 120), 2)
         vx = round(random.uniform(10, 120), 2)
@@ -401,7 +440,9 @@ def etoile_generator():
         etoile_objet = etoile(et_tab[i].p[0], et_tab[i].p[1], et_tab[i].v[0], et_tab[i].v[1], ax, ay, et_tab[i].m)
         etoile_tab.append(etoile_objet)
         i += 1
+"""
 
+"""
 # Appel de la fonction pour générer les étoiles
 etoile_generator()
 
@@ -411,4 +452,4 @@ for etoile_objet in etoile_tab:
           f"Vitesse: ({etoile_objet.v[0]}, {etoile_objet.v[1]}), "
           f"Accélération: ({etoile_objet.a[0]}, {etoile_objet.a[1]}), "
           f"Masse: {etoile_objet.m}")
-
+"""
