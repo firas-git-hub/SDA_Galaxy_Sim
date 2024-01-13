@@ -1,17 +1,34 @@
 import random
 import math
 import tkinter as tk
+import pickle
 
 from Point import Point
 from Particule import Parti
 from Particule import Particule
 from BHTreeNode import BHTreeNode
 
+def printEnfants(node: BHTreeNode):
+    # cnt = 0
+    # for el in enfants:
+    #     if hasattr(el, "enfants"):
+    #         cnt = cnt + printEnfants(el.enfants)
+    #     if el and el.nbParticules == 1:
+    #         cnt += 1
+    # return cnt
+    if hasattr(node, "enfants"):
+        for el in node.enfants:
+            if hasattr(el, "nbParticules"):
+                print(el.nbParticules, end=' ')
+        print()
+        for el in node.enfants:
+            printEnfants(el)
+
 def generate_Parti():
-    position = Point(round(random.uniform(10, 120), 2),
-                     round(random.uniform(10, 120), 2))
-    vitesse = Point(round(random.uniform(10, 120), 2),
-                    round(random.uniform(10, 120), 2))
+    position = Point(round(random.uniform(10, 700), 2),
+                     round(random.uniform(10, 700), 2))
+    vitesse = Point(round(random.uniform(10, 700), 2),
+                    round(random.uniform(10, 700), 2))
     masse = round(random.uniform(40000, 120000), 4)
     parti = Parti(position, vitesse, masse)
     return parti
@@ -77,19 +94,25 @@ def animate(canvas, particule_list):
 
 def main():
     G = 30
-    nombre_de_particule = 20
+    nombre_de_particule = 40
     particule_list = []
 
-    parti_list = [generate_Parti() for _ in range(nombre_de_particule)]
-    particule_list = generate_Particule(parti_list, particule_list, G)
+    # parti_list = [generate_Parti() for _ in range(nombre_de_particule)]
+    # particule_list = generate_Particule(parti_list, particule_list, G)
+    # with open('data.pkl', 'wb') as f:
+    #     pickle.dump(particule_list, f, pickle.HIGHEST_PROTOCOL)
+    particule_list
+    with open('data.pkl', 'rb') as f:
+        particule_list = pickle.load(f)
 
 
     rootNode = BHTreeNode(None, Point(0, 0), Point(750, 750))
-    
 
     for i in range(len(particule_list)):
         rootNode.insert(particule_list[i], 0)
 
+    print(printEnfants(rootNode))
+    
     min_values, max_values = rootNode.get_min_max_values_of_children()
 
     """
@@ -112,7 +135,8 @@ def main():
             x = etoile_objet.position.x
             y = etoile_objet.position.y
             # Dessiner un point jaune pour représenter l'étoile
-            canvas.create_oval(x, y, x+2, y+2, fill='yellow')
+            canvas.create_oval(x+10, y+10, x+5, y+5, fill='yellow')
+            #print("x = ", x, "y =", y)
     """
     # Coordonnées des rectangles dans un tableau
     coordonnees_rectangles = [
@@ -123,9 +147,12 @@ def main():
         [(min_values[4].x, min_values[4].y), (max_values[4].x, max_values[4].y)],
     ]
     """
-    coordonnees_rectangles = [[(min_values[i].x, min_values[i].y), (max_values[i].x, max_values[i].y)]
-        for i in range(len(min_values))
+    coordonnees_rectangles = [
+    [(min_values[i].x, min_values[i].y), (max_values[i].x, max_values[i].y)] 
+    for i in range(len(min_values))
     ]
+
+    # print(coordonnees_rectangles)
 
     # Trouver les coordonnées minimales et maximales pour déterminer la taille du canevas
     min_x = min(coord[0][0] for coord in coordonnees_rectangles)
@@ -156,17 +183,19 @@ def main():
 
     # Lancer la boucle principale Tkinter
     fenetre.mainloop()
-
-
-
-
-"""
+    
+    """
     for index, parti in enumerate(parti_list, start=1):
         print(f"Parti {index}:\n{parti}\n")
   
     for index, particule in enumerate(particule_list, start=1):
         print(f"Parti {index}:\n{particule}\n")
-"""
+    """
+
+
+
+    
+
 
 """
     root = tk.Tk()

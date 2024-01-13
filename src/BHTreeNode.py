@@ -293,6 +293,23 @@ class BHTreeNode:
 
         self.nbParticules += 1
 
+    """
+    def get_min_max_values_of_children(self):
+        min_values = []
+        max_values = []
+
+        for child in self.enfants:
+            if child is not None:
+                min_values.append(child.min)
+                max_values.append(child.max)
+                # Si vous souhaitez également récupérer les valeurs des enfants des enfants, vous pouvez appeler récursivement la fonction
+                child_min_values, child_max_values = child.get_min_max_values_of_children()
+                min_values.extend(child_min_values)
+                max_values.extend(child_max_values)
+
+        return min_values, max_values
+    
+    """
     def get_min_max_values_of_children(self):
         children_min_values = []
         children_max_values = []
