@@ -74,11 +74,6 @@ def formule_acceleration(tab, i, G):
     end_y = G * total_y
     end_x1 = end_x / etoile_first.masse
     end_y1 = end_y / etoile_first.masse
-    # print("end_y1 = ", end_y1)
-    """
-    tableau = [end_x1, end_y1]
-    return tableau
-    """ 
     p_acc = Point(end_x1, end_y1)
     return p_acc
     
