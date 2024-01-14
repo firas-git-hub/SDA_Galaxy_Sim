@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import scipy.constants as cstnt
+import BHTreeHelper
 from Particule import Particule
 from Point import Point
 
@@ -47,6 +48,7 @@ class BHTreeNode:
                self.enfants[2] == None and
                self.enfants[3] == None)
 
+    # C'est l'attribut qui determine si le calcul de barnes hut est possible
     def tresProche(self)-> bool:
         return self.calcForceApproxPossible
 
@@ -175,12 +177,14 @@ class BHTreeNode:
             r = np.sqrt((particule1.etat.position.x - self.centreDeMasse.x) * (particule1.etat.position.x - self.centreDeMasse.x) +
                  (particule1.etat.position.y - self.centreDeMasse.y) * (particule1.etat.position.y - self.centreDeMasse.y))
             d = self.max.x - self.min.x
+            # barnes hut Possible comme d/r <= theta
             if((d / r) <= BHTreeNode.theta):
                 self.calcForceApproxPossible = False
                 k = BHTreeNode.s_gamma * self.masse / (r * r * r)
                 acc.x = k * (self.centreDeMasse.x - particule1.etat.position.x)
                 acc.y = k * (self.centreDeMasse.y - particule1.etat.position.y)
                 BHTreeNode.nbCalculsPourEstimerForce += 1
+            # barnes hut Possible comme d/r > theta 
             else:
                 self.calcForceApproxPossible = True
                 buf: Point = Point(0, 0)

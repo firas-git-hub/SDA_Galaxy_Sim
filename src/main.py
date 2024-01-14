@@ -24,11 +24,11 @@ def printEnfants(node: BHTreeNode):
             printEnfants(el)
 
 def generate_Parti():
-    position = Point(round(random.uniform(10, 700), 2),
-                     round(random.uniform(10, 700), 2))
-    vitesse = Point(round(random.uniform(10, 700), 2),
-                    round(random.uniform(10, 700), 2))
-    masse = round(random.uniform(40000, 120000), 4)
+    position = Point(round(random.uniform(200, 600), 2),
+                     round(random.uniform(200, 600), 2))
+    vitesse = Point(round(random.uniform(-15, 15), 2),
+                    round(random.uniform(-15, 15), 2))
+    masse = round(random.uniform(4000, 1200000), 4)
     parti = Particule(position, vitesse, Point(), masse)
     return parti
 
@@ -45,6 +45,7 @@ def generate_Particule(tab_par, tab_particule, G):
                       tab_par[i].etat.vitesse, acceleration_point, tab_par[i].masse)
         tab_particule.append(p)
         i += 1
+    tab_particule.append(Particule(Point(450,450), Point(0, 0), Point(0, 0), 999999999999))
     return tab_particule
 
 def norm_vector(p1: Particule, p2: Particule):
@@ -137,7 +138,7 @@ def update_etoile(tab_etoile, position_etoile_tab, position_point, acceleration_
 
 def main():
     G = 6.67430 * (10**(-11))
-    nombre_de_particule = 100
+    nombre_de_particule = 250
     particule_list = []
     delta_temps = 0.5
 
@@ -149,10 +150,9 @@ def main():
     # with open('data.pkl', 'rb') as f:
     #     particule_list = pickle.load(f)
 
-    rootNode = BHTreeNode(None, Point(0, 0), Point(750, 750))
+    rootNode = BHTreeNode(None, Point(0, 0), Point(800, 800))
     rootNode = BHTreeHelper.construireArbre(rootNode, particule_list)
-    print(rootNode.nbParticules)
-    # print(printEnfants(rootNode))
+    
     min_values, max_values = rootNode.get_min_max_values_of_children()
 
 
@@ -168,12 +168,10 @@ def main():
             y = etoile_objet.etat.position.y
             # Dessiner un point jaune pour représenter l'étoile
             canvas.create_oval(x+10, y+10, x+5, y+5, fill='yellow')
-            #print("x = ", x, "y =", y)
 
 
     rootNode = BHTreeNode(None, Point(0, 0), Point(2000, 2000))
 
-    #draw_etoiles(canvas)
     for i in range(len(particule_list)):
         try:
             rootNode.insert(particule_list[i], 0)
@@ -183,13 +181,11 @@ def main():
     
     min_values, max_values = rootNode.get_min_max_values_of_children()
 
-
     coordonnees_rectangles = [
     [(min_values[i].x, min_values[i].y), (max_values[i].x, max_values[i].y)] 
     for i in range(len(min_values))
     ]
 
-    # print(coordonnees_rectangles)
 
     # Trouver les coordonnées minimales et maximales pour déterminer la taille du canevas
     min_x = min(coord[0][0] for coord in coordonnees_rectangles)
@@ -208,7 +204,6 @@ def main():
 
     draw_etoiles(canvas)
     
-
     # Tracer les rectangles à partir des coordonnées ajustées
     for coords in coordonnees_rectangles:
         adjusted_coords = (
@@ -221,28 +216,16 @@ def main():
     
     def update_and_draw(canvas, particule_list, rootNode, min_x, min_y, marge):
         i = 0
-        
-        
-
+        rootNode = BHTreeNode(None, Point(0, 0), Point(2000, 2000))
         while i < len(particule_list):
             acc = formule_acceleration(particule_list, i, G)
             pos = position_update(particule_list, i, particule_list[i].etat.vitesse, delta_temps)
             vit = vitesse_update(particule_list, i, acc, delta_temps)
             update_etoile(particule_list, i, pos, acc, vit)
             i += 1
-
-        
-        
-        rootNode.reiniArbre(Point(0, 0), Point(2000, 2000))
-
-        for i in range(len(particule_list)):
-            try:
-                rootNode.insert(particule_list[i], 0)
-            except:
-                pass
+        particule_list, rootNode = BHTreeHelper.eval(rootNode, particule_list)
 
         min_values, max_values = rootNode.get_min_max_values_of_children()
-
 
         draw_etoiles(canvas)
 
@@ -264,66 +247,11 @@ def main():
         # Planifier l'appel à update_and_draw après 50 millisecondes
         canvas.after(50, update_and_draw, canvas, particule_list, rootNode, min_x, min_y, marge)
 
-
-
-    
-
     # Planifier la première mise à jour après 50 millisecondes
-    fenetre.after(1000, update_and_draw, canvas, particule_list, rootNode, min_x, min_y, marge)
+    fenetre.after(5, update_and_draw, canvas, particule_list, rootNode, min_x, min_y, marge)
 
     # Lancer la boucle principale Tkinter
     fenetre.mainloop()
-    
-    i = 0
-    particule_list = BHTreeHelper.eval(rootNode, particule_list)
-    while i < len(particule_list):
-        # acc = formule_acceleration(particule_list,i,G)
-        acc = rootNode.calcForce(particule_list[i])
-        pos = position_update(particule_list, i, particule_list[i].etat.vitesse, delta_temps)
-        vit = vitesse_update(particule_list, i, acc, delta_temps)
-        update_etoile(particule_list, i, pos, acc, vit)
-        i += 1
-        
-    for index, particule in enumerate(particule_list, start=1):
-        print(f"Parti {index}:\n{particule}\n")
-
-    """
-    def update_and_draw(canvas, particule_list, rootNode):
-        i = 0
-        while i < len(particule_list):
-            acc = formule_acceleration(particule_list, i, G)
-            pos = position_update(particule_list, i, particule_list[i].vitesse, delta_temps)
-            vit = vitesse_update(particule_list, i, acc, delta_temps)
-            update_etoile(particule_list, i, pos, acc, vit)
-            i += 1
-
-        draw_etoiles(canvas)
-
-        rootNode.reiniArbre(Point(0, 0), Point(750, 750))
-
-        for i in range(len(particule_list)):
-            rootNode.insert(particule_list[i], 0)
-
-        min_values, max_values = rootNode.get_min_max_values_of_children()
-
-        coordonnees_rectangles = [
-            [(min_values[i].x, min_values[i].y), (max_values[i].x, max_values[i].y)]
-            for i in range(len(min_values))
-        ]
-
-        # Tracer les rectangles à partir des coordonnées ajustées
-        for coords in coordonnees_rectangles:
-            adjusted_coords = (
-                (coords[0][0] - min_x) + marge,
-                (coords[0][1] - min_y) + marge,
-                (coords[1][0] - min_x) + marge,
-                (coords[1][1] - min_y) + marge
-            )
-            tracer_rectangles(adjusted_coords[:2], adjusted_coords[2:])
-
-        # Planifier l'appel à update_and_draw après 50 millisecondes
-        fenetre.after(50, update_and_draw, canvas, particule_list, rootNode)
-    """
 
 
 if __name__ == "__main__":

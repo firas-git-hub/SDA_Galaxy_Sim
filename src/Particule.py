@@ -13,16 +13,16 @@ class Particule:
                    + str(self.etat.position.x) 
                    + ", " 
                    + str(self.etat.position.y) 
-                   + "\nVitesse : "
+                   + "Vitesse : "
                    + str(self.etat.vitesse.x)
                    + ", "
                    + str(self.etat.vitesse.y)
-                   + "Etat Derivee du Particule : \n"
-                   + "\nVitesse : "
+                   + "\nEtat Derivee du Particule : \n"
+                   + "Vitesse : "
                    + str(self.etatDeriv.vitesse.x)
                    + ", "
                    + str(self.etatDeriv.vitesse.y)
-                   + "\nAcceleration : "
+                   + "Acceleration : \n"
                    + str(self.etatDeriv.acceleration.x)
                    + ", "
                    + str(self.etatDeriv.acceleration.y))
