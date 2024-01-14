@@ -222,7 +222,7 @@ def main():
 
         while i < len(particule_list):
             acc = formule_acceleration(particule_list, i, G)
-            pos = position_update(particule_list, i, particule_list[i].vitesse, delta_temps)
+            pos = position_update(particule_list, i, particule_list[i].etat.vitesse, delta_temps)
             vit = vitesse_update(particule_list, i, acc, delta_temps)
             update_etoile(particule_list, i, pos, acc, vit)
             i += 1
@@ -271,11 +271,11 @@ def main():
     fenetre.mainloop()
     
     i = 0
-    particule_list = BHTreeHelper.eval(particule_list)
+    particule_list = BHTreeHelper.eval(rootNode, particule_list)
     while i < len(particule_list):
         # acc = formule_acceleration(particule_list,i,G)
         acc = rootNode.calcForce(particule_list[i])
-        pos = position_update(particule_list, i, particule_list[i].vitesse, delta_temps)
+        pos = position_update(particule_list, i, particule_list[i].etat.vitesse, delta_temps)
         vit = vitesse_update(particule_list, i, acc, delta_temps)
         update_etoile(particule_list, i, pos, acc, vit)
         i += 1

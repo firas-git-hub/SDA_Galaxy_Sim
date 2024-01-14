@@ -59,10 +59,10 @@ class BHTreeHelper:
         return rootNode
         
     @staticmethod
-    def eval(rootNode, particules: List[Particule]):
-        rootNode.construireArbre(particules)
-        for i in range(1,rootNode.num):
-            acc = rootNode.racine.calcForce(particules[i])
+    def eval(rootNode: BHTreeNode, particules: List[Particule]):
+        # rootNode.construireArbre(particules)
+        for i in range(1,rootNode.nbParticules):
+            acc = rootNode.calcForce(particules[i])
             particules[i].etatDeriv.acceleration.x = acc.x
             particules[i].etatDeriv.acceleration.y = acc.y
             particules[i].etatDeriv.vitesse.y = particules[i].etat.vitesse.y
@@ -70,8 +70,8 @@ class BHTreeHelper:
         
         # Le particule 0 est calculer en dernier a cause des statistiques
         # qui sont en relation aveec le particule 0 et pas les autres.
-        rootNode.racine.reiniStat()
-        acc = rootNode.racine.calcForce(particules[0])
+        rootNode.reiniStat()
+        acc = rootNode.calcForce(particules[0])
         particules[0].etatDeriv.acceleration.x = acc.x
         particules[0].etatDeriv.acceleration.y = acc.y
         particules[0].etatDeriv.vitesse.y = particules[0].etat.vitesse.y
