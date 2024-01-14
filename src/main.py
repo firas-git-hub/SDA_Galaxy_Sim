@@ -55,6 +55,7 @@ def norm_vector(p1: Particule, p2: Particule):
 
 def formule_acceleration(tab, i, G):
     etoile_first = tab[i]
+   # taille = len(etoile_tab)
     total_x = 0
     total_y = 0
     for e in tab:
@@ -70,8 +71,11 @@ def formule_acceleration(tab, i, G):
                  * (e.etat.position.y - etoile_first.etat.position.y))
 
     end_x = G * total_x
+    # print("end_x = ", end_x)
     end_y = G * total_y
+    # print("end_y = ", end_y)
     end_x1 = end_x / etoile_first.masse
+    # print("end_x1 = ", end_x1)
     end_y1 = end_y / etoile_first.masse
     p_acc = Point(end_x1, end_y1)
     return p_acc
