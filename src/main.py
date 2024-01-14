@@ -132,10 +132,10 @@ def update_etoile(tab_etoile, position_etoile_tab, position_point, acceleration_
 
 
 def main():
-    G = 30
-    nombre_de_particule = 40
+    G = 6.67430 * (10**(-11))
+    nombre_de_particule = 100
     particule_list = []
-    delta_temps = 20
+    delta_temps = 0.5
 
     parti_list = [generate_Parti() for _ in range(nombre_de_particule)]
     particule_list = generate_Particule(parti_list, particule_list, G)
@@ -158,12 +158,27 @@ def main():
         canvas.create_rectangle(x1, y1, x2, y2, outline="red")
 
     def draw_etoiles(canvas):
+        canvas.delete("all")
         for etoile_objet in particule_list:
             x = etoile_objet.etat.position.x
             y = etoile_objet.etat.position.y
             # Dessiner un point jaune pour représenter l'étoile
             canvas.create_oval(x+10, y+10, x+5, y+5, fill='yellow')
             #print("x = ", x, "y =", y)
+
+
+    rootNode = BHTreeNode(None, Point(0, 0), Point(2000, 2000))
+
+    #draw_etoiles(canvas)
+    for i in range(len(particule_list)):
+        try:
+            rootNode.insert(particule_list[i], 0)
+        except:
+            pass
+
+    
+    min_values, max_values = rootNode.get_min_max_values_of_children()
+
 
     coordonnees_rectangles = [
     [(min_values[i].x, min_values[i].y), (max_values[i].x, max_values[i].y)] 
@@ -188,6 +203,7 @@ def main():
     canvas.pack()
 
     draw_etoiles(canvas)
+    
 
     # Tracer les rectangles à partir des coordonnées ajustées
     for coords in coordonnees_rectangles:
@@ -198,6 +214,58 @@ def main():
             (coords[1][1] - min_y) + marge
         )
         tracer_rectangles(adjusted_coords[:2], adjusted_coords[2:])
+    
+    def update_and_draw(canvas, particule_list, rootNode, min_x, min_y, marge):
+        i = 0
+        
+        
+
+        while i < len(particule_list):
+            acc = formule_acceleration(particule_list, i, G)
+            pos = position_update(particule_list, i, particule_list[i].vitesse, delta_temps)
+            vit = vitesse_update(particule_list, i, acc, delta_temps)
+            update_etoile(particule_list, i, pos, acc, vit)
+            i += 1
+
+        
+        
+        rootNode.reiniArbre(Point(0, 0), Point(2000, 2000))
+
+        for i in range(len(particule_list)):
+            try:
+                rootNode.insert(particule_list[i], 0)
+            except:
+                pass
+
+        min_values, max_values = rootNode.get_min_max_values_of_children()
+
+
+        draw_etoiles(canvas)
+
+        coordonnees_rectangles = [
+            [(min_values[i].x, min_values[i].y), (max_values[i].x, max_values[i].y)]
+            for i in range(len(min_values))
+        ]
+
+        # Tracer les rectangles à partir des coordonnées ajustées
+        for coords in coordonnees_rectangles:
+            adjusted_coords = (
+                (coords[0][0] - min_x) + marge,
+                (coords[0][1] - min_y) + marge,
+                (coords[1][0] - min_x) + marge,
+                (coords[1][1] - min_y) + marge
+            )
+            tracer_rectangles(adjusted_coords[:2], adjusted_coords[2:])
+
+        # Planifier l'appel à update_and_draw après 50 millisecondes
+        canvas.after(50, update_and_draw, canvas, particule_list, rootNode, min_x, min_y, marge)
+
+
+
+    
+
+    # Planifier la première mise à jour après 50 millisecondes
+    fenetre.after(1000, update_and_draw, canvas, particule_list, rootNode, min_x, min_y, marge)
 
     # Lancer la boucle principale Tkinter
     fenetre.mainloop()
@@ -214,6 +282,45 @@ def main():
         
     for index, particule in enumerate(particule_list, start=1):
         print(f"Parti {index}:\n{particule}\n")
+
+    """
+    def update_and_draw(canvas, particule_list, rootNode):
+        i = 0
+        while i < len(particule_list):
+            acc = formule_acceleration(particule_list, i, G)
+            pos = position_update(particule_list, i, particule_list[i].vitesse, delta_temps)
+            vit = vitesse_update(particule_list, i, acc, delta_temps)
+            update_etoile(particule_list, i, pos, acc, vit)
+            i += 1
+
+        draw_etoiles(canvas)
+
+        rootNode.reiniArbre(Point(0, 0), Point(750, 750))
+
+        for i in range(len(particule_list)):
+            rootNode.insert(particule_list[i], 0)
+
+        min_values, max_values = rootNode.get_min_max_values_of_children()
+
+        coordonnees_rectangles = [
+            [(min_values[i].x, min_values[i].y), (max_values[i].x, max_values[i].y)]
+            for i in range(len(min_values))
+        ]
+
+        # Tracer les rectangles à partir des coordonnées ajustées
+        for coords in coordonnees_rectangles:
+            adjusted_coords = (
+                (coords[0][0] - min_x) + marge,
+                (coords[0][1] - min_y) + marge,
+                (coords[1][0] - min_x) + marge,
+                (coords[1][1] - min_y) + marge
+            )
+            tracer_rectangles(adjusted_coords[:2], adjusted_coords[2:])
+
+        # Planifier l'appel à update_and_draw après 50 millisecondes
+        fenetre.after(50, update_and_draw, canvas, particule_list, rootNode)
+    """
+
 
 if __name__ == "__main__":
     main()
