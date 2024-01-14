@@ -45,7 +45,7 @@ def generate_Particule(tab_par, tab_particule, G):
                       tab_par[i].etat.vitesse, acceleration_point, tab_par[i].masse)
         tab_particule.append(p)
         i += 1
-    tab_particule.append(Particule(Point(450,450), Point(0, 0), Point(0, 0), 999999999999))
+    tab_particule.append(Particule(Point(450,450), Point(0, 0), Point(0, 0), 9999999999999))
     return tab_particule
 
 def norm_vector(p1: Particule, p2: Particule):
