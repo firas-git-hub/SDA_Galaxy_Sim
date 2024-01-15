@@ -199,7 +199,7 @@ def main():
 
     # Ajouter une marge pour s'assurer que tout le rectangle est visible
     marge = 10
-    canvas = tk.Canvas(fenetre, width=max_x - min_x + 2*marge, height=max_y - min_y + 2*marge)
+    canvas = tk.Canvas(fenetre, width=max_x - min_x + 2*marge, height=max_y - min_y + 2*marge, background="black")
     canvas.pack()
 
     draw_etoiles(canvas)
