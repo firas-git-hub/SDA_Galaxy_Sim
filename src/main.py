@@ -7,22 +7,7 @@ from Point import Point
 from Particule import Particule
 from BHTreeNode import BHTreeNode
 
-def printEnfants(node: BHTreeNode):
-    # cnt = 0
-    # for el in enfants:
-    #     if hasattr(el, "enfants"):
-    #         cnt = cnt + printEnfants(el.enfants)
-    #     if el and el.nbParticules == 1:
-    #         cnt += 1
-    # return cnt
-    if hasattr(node, "enfants"):
-        for el in node.enfants:
-            if hasattr(el, "nbParticules"):
-                print(el.nbParticules, end=' ')
-        print()
-        for el in node.enfants:
-            printEnfants(el)
-
+# Generation des particules sans l'acceleration initiale
 def generate_Parti():
     position = Point(round(random.uniform(200, 600), 2),
                      round(random.uniform(200, 600), 2))
@@ -32,15 +17,11 @@ def generate_Parti():
     parti = Particule(position, vitesse, Point(), masse)
     return parti
 
+# Generation des particules avec l'acceleration initiale
 def generate_Particule(tab_par, tab_particule, G):
     i = 0
     while i < len(tab_par):
         acceleration_point = formule_acceleration(tab_par, i, G)
-        """
-        ax = acceleration_point.x
-        ay = acceleration_point.y
-        p_a = Point(ax, ay)
-        """
         p = Particule(tab_par[i].etat.position,
                       tab_par[i].etat.vitesse, acceleration_point, tab_par[i].masse)
         tab_particule.append(p)
@@ -54,9 +35,9 @@ def norm_vector(p1: Particule, p2: Particule):
     norme = math.sqrt((x**2) + (y**2))
     return norme
 
+# Calcule de l'interaction entre les particules sans la formule de Barnes Hut
 def formule_acceleration(tab, i, G):
     etoile_first = tab[i]
-   # taille = len(etoile_tab)
     total_x = 0
     total_y = 0
     for e in tab:
@@ -72,41 +53,17 @@ def formule_acceleration(tab, i, G):
                  * (e.etat.position.y - etoile_first.etat.position.y))
 
     end_x = G * total_x
-    # print("end_x = ", end_x)
     end_y = G * total_y
-    # print("end_y = ", end_y)
     end_x1 = end_x / etoile_first.masse
-    # print("end_x1 = ", end_x1)
     end_y1 = end_y / etoile_first.masse
     p_acc = Point(end_x1, end_y1)
     return p_acc
-    
-
-def update_particles(canvas, particule_list):
-    for particule in particule_list:
-        particule.etat.position.x += particule.etat.vitesse.x
-        particule.etat.position.y += particule.etat.vitesse.y
-
-def draw_particles(canvas, particule_list):
-    canvas.delete("all")
-    for particule in particule_list:
-        x, y = particule.etat.position.x, particule.etat.position.y
-        canvas.create_oval(x, y, x, y, fill="blue")
-
-def animate(canvas, particule_list):
-    update_particles(canvas, particule_list)
-    draw_particles(canvas, particule_list)
-    canvas.after(50, animate, canvas, particule_list)
-
 
 # On met à jour les vitesses d'une étoile
 def vitesse_update(tab_etoile, position_etoile_tab, acceleration, delta_temps):
     e = tab_etoile[position_etoile_tab]
     acceleration_x = acceleration.x
     acceleration_y = acceleration.y
-    #acceleration_x = tab_acceleration[0]
-    #acceleration_y = tab_acceleration[1]
-    #vitesse_new = []
     vitesse_x = e.etat.vitesse.x + acceleration_x * delta_temps
     vitesse_y = e.etat.vitesse.y + acceleration_y * delta_temps
     vitesse_new = Point(vitesse_x,vitesse_y)
@@ -119,12 +76,12 @@ def position_update(tab_etoile, position_etoile_tab, vitesse, delta_temps):
     e = tab_etoile[position_etoile_tab]
     vitesse_x = vitesse.x
     vitesse_y = vitesse.y
-    #position = []
     position_x = e.etat.position.x + vitesse_x * delta_temps
     position_y = e.etat.position.y + vitesse_y * delta_temps
     position_new = Point(position_x, position_y)
     return position_new
 
+# On met a jour la particule dans le tableau
 def update_etoile(tab_etoile, position_etoile_tab, position_point, acceleration_point, vitesse_point):
     e = tab_etoile[position_etoile_tab]
     e.etat.position.x = position_point.x
@@ -144,17 +101,15 @@ def main():
 
     parti_list = [generate_Parti() for _ in range(nombre_de_particule)]
     particule_list = generate_Particule(parti_list, particule_list, G)
-    # with open('data.pkl', 'wb') as f:
-    #     pickle.dump(particule_list, f, pickle.HIGHEST_PROTOCOL)
-    # particule_list
-    # with open('data.pkl', 'rb') as f:
-    #     particule_list = pickle.load(f)
 
+    # Creation de la racine du quad tree
     rootNode = BHTreeNode(None, Point(0, 0), Point(800, 800))
+    
+    # Utilisation de la methode Construire arbre dans BHTreeHelper.py pour gerer l'insertion et le calcul du centre de masse
     rootNode = BHTreeHelper.construireArbre(rootNode, particule_list)
     
+    # Pour tracer les quadrants du quad tree dans l'affichage
     min_values, max_values = rootNode.get_min_max_values_of_children()
-
 
     def tracer_rectangles(coord1, coord2):
         x1, y1 = coord1
@@ -166,18 +121,7 @@ def main():
         for etoile_objet in particule_list:
             x = etoile_objet.etat.position.x
             y = etoile_objet.etat.position.y
-            # Dessiner un point jaune pour représenter l'étoile
             canvas.create_oval(x+10, y+10, x+5, y+5, fill='yellow')
-
-
-    rootNode = BHTreeNode(None, Point(0, 0), Point(2000, 2000))
-
-    for i in range(len(particule_list)):
-        try:
-            rootNode.insert(particule_list[i], 0)
-        except:
-            pass
-
     
     min_values, max_values = rootNode.get_min_max_values_of_children()
 
@@ -187,24 +131,22 @@ def main():
     ]
 
 
-    # Trouver les coordonnées minimales et maximales pour déterminer la taille du canevas
     min_x = min(coord[0][0] for coord in coordonnees_rectangles)
     min_y = min(coord[0][1] for coord in coordonnees_rectangles)
     max_x = max(coord[1][0] for coord in coordonnees_rectangles)
     max_y = max(coord[1][1] for coord in coordonnees_rectangles)
 
-    # Création de la fenêtre Tkinter
+    # fenêtre Tkinter
     fenetre = tk.Tk()
     fenetre.title("Tracer des rectangles rouges")
 
-    # Ajouter une marge pour s'assurer que tout le rectangle est visible
     marge = 10
     canvas = tk.Canvas(fenetre, width=max_x - min_x + 2*marge, height=max_y - min_y + 2*marge, background="black")
     canvas.pack()
 
     draw_etoiles(canvas)
     
-    # Tracer les rectangles à partir des coordonnées ajustées
+    # Tracer tout les quadrants du quad tree dans une boucle
     for coords in coordonnees_rectangles:
         adjusted_coords = (
             (coords[0][0] - min_x) + marge,
@@ -214,15 +156,21 @@ def main():
         )
         tracer_rectangles(adjusted_coords[:2], adjusted_coords[2:])
     
+    # Methode de l'affichage dynamique
     def update_and_draw(canvas, particule_list, rootNode, min_x, min_y, marge):
+        
+        # Reconstruction de l'arbre pour chaque moment du temps (dans ce cas c'est delta_temps)
         i = 0
         rootNode = BHTreeNode(None, Point(0, 0), Point(2000, 2000))
+        
+        # MAJ des particules
         while i < len(particule_list):
             acc = formule_acceleration(particule_list, i, G)
             pos = position_update(particule_list, i, particule_list[i].etat.vitesse, delta_temps)
             vit = vitesse_update(particule_list, i, acc, delta_temps)
             update_etoile(particule_list, i, pos, acc, vit)
             i += 1
+        
         particule_list, rootNode = BHTreeHelper.eval(rootNode, particule_list)
 
         min_values, max_values = rootNode.get_min_max_values_of_children()
@@ -234,7 +182,6 @@ def main():
             for i in range(len(min_values))
         ]
 
-        # Tracer les rectangles à partir des coordonnées ajustées
         for coords in coordonnees_rectangles:
             adjusted_coords = (
                 (coords[0][0] - min_x) + marge,
@@ -244,13 +191,10 @@ def main():
             )
             tracer_rectangles(adjusted_coords[:2], adjusted_coords[2:])
 
-        # Planifier l'appel à update_and_draw après 50 millisecondes
         canvas.after(50, update_and_draw, canvas, particule_list, rootNode, min_x, min_y, marge)
 
-    # Planifier la première mise à jour après 50 millisecondes
     fenetre.after(5, update_and_draw, canvas, particule_list, rootNode, min_x, min_y, marge)
 
-    # Lancer la boucle principale Tkinter
     fenetre.mainloop()
 
 

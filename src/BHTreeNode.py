@@ -1,7 +1,4 @@
 import numpy as np
-import math
-import scipy.constants as cstnt
-import BHTreeHelper
 from Particule import Particule
 from Point import Point
 
@@ -288,11 +285,10 @@ class BHTreeNode:
         children_max_values = []
 
         for child in self.enfants:
-            if child:  # Vérifier si le nœud a des enfants
+            if child:
                 children_min_values.append(child.min)
                 children_max_values.append(child.max)
 
-                # Si l'enfant a lui-même des enfants, récursivement obtenir les valeurs
                 if child.enfants:
                     child_min, child_max = child.get_min_max_values_of_children()
                     children_min_values.extend(child_min)
